@@ -58,7 +58,7 @@
 		"@stylistic/eslint-plugin": "5.10.0",
 		"@types/sql.js": "1.4.11",
 		"@vitest/eslint-plugin": "1.6.27",
-		"drizzle-orm": "0.45.2",
+		"drizzle-orm": "0.45.3",
 		"drizzle-orm-v1": "npm:drizzle-orm@1.0.0-rc.4",
 		"eslint": "10.11.0",
 		"eslint-plugin-import-newlines": "2.0.0",
