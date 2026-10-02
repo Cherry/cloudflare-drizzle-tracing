@@ -7,18 +7,9 @@ Adds a [Cloudflare Workers tracing](https://developers.cloudflare.com/workers/ob
 
 ## Why
 
-Workers tracing automatically instruments D1, KV, `fetch()`, and more, but not [Hyperdrive](https://developers.cloudflare.com/hyperdrive/) or TCP sockets. If you query Postgres or MySQL through `postgres`, `pg`, or `mysql2`, those queries are invisible in your traces. With this package installed, they look like this:
+Workers tracing automatically instruments D1, KV, `fetch()`, and more. For [Hyperdrive](https://developers.cloudflare.com/hyperdrive/) and TCP sockets, it shows the connection opening but not the queries sent over it. If you query Postgres or MySQL through `postgres`, `pg`, or `mysql2`, those queries are invisible in your traces. With this package installed, they look like this:
 
-```
-GET /users
-├─ drizzle.execute        SELECT users, 1 row, 101ms
-│  └─ connect
-├─ drizzle.transaction    TRANSACTION
-│  ├─ drizzle.execute     UPDATE users
-│  └─ drizzle.transaction SAVEPOINT
-│     └─ drizzle.execute  SELECT users
-└─ drizzle.execute        INSERT users, error.type = 23505
-```
+![A Cloudflare Workers trace showing Drizzle query, transaction, and savepoint spans over Hyperdrive, with a failed insert highlighted in red](https://raw.githubusercontent.com/Cherry/cloudflare-drizzle-tracing/main/docs/trace.png)
 
 On D1, the runtime's own `d1_*` spans nest under the matching Drizzle span, so you can see which query produced them.
 
@@ -71,7 +62,7 @@ instrumentDrizzle(db, {
 | `drizzle.transaction` | `db.operation.name` (`TRANSACTION` or `SAVEPOINT`) |
 | `drizzle.batch` | `db.operation.name`, `db.operation.batch.size` |
 
-A failed query records the driver's error code as `error.type` (for example, Postgres `23505` or MySQL `ER_DUP_ENTRY`) and sets an error status.
+Every span also carries `otel.scope.name` and `otel.scope.version`, so you can tell which version of this package produced it. A failed query records the driver's error code as `error.type` (for example, Postgres `23505` or MySQL `ER_DUP_ENTRY`) and sets an error status.
 
 Outside workerd, for example in a Node test suite, the package does nothing and queries run as usual.
 

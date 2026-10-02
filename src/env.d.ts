@@ -2,3 +2,6 @@
 declare module 'cloudflare:workers' {
 	export const tracing: import('./tracer').TracerLike | undefined;
 }
+
+// Replaced with the package.json version at build time
+declare const __VERSION__: string;

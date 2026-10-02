@@ -283,6 +283,9 @@ export function instrumentDrizzle<TDatabase extends object>(db: TDatabase, optio
 			return options.tracer ?? getRuntimeTracer();
 		},
 		baseAttributes: {
+			// OTel's instrumentation scope, the same pair Drizzle's own tracer reports as drizzle-orm and its version
+			'otel.scope.name': 'cloudflare-drizzle-tracing',
+			'otel.scope.version': __VERSION__,
 			'db.system.name': options.dbSystem ?? dbSystems[kindOf(database.dialect) ?? ''] ?? 'other_sql',
 			...options.attributes,
 		},

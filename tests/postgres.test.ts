@@ -12,6 +12,7 @@ import {
 	it,
 } from 'vitest';
 
+import packageJson from '../package.json';
 import { instrumentDrizzle } from '../src';
 import { createTracer, label } from './helpers';
 
@@ -48,6 +49,8 @@ describe.each(versions)('postgres (drizzle $version)', ({ orm, core, connect }) 
 		expect(rows).toHaveLength(2);
 		expect(spans.map(span => label(span))).toEqual(['INSERT users', 'SELECT users']);
 		expect(spans[1].attributes).toEqual({
+			'otel.scope.name': 'cloudflare-drizzle-tracing',
+			'otel.scope.version': packageJson.version,
 			'db.system.name': 'postgresql',
 			'db.namespace': 'app',
 			'db.operation.name': 'SELECT',
