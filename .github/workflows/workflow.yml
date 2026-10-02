@@ -1,0 +1,75 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Read-only by default, jobs opt into more below
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: Test
+    # Backs the postgres.js over TCP tests in the workerd suite
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check-types
+      - run: npm test
+        env:
+          TEST_DATABASE_URL: postgres://postgres:test@localhost:5432/postgres
+      - run: npm run build
+
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    name: Release
+    needs: test
+    # Never on pull requests or forks, only pushes to main of this repo
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.repository == 'Cherry/cloudflare-drizzle-tracing'
+    environment: release
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    permissions:
+      contents: write # tags and GitHub releases
+      issues: write # semantic-release comments on released issues
+      pull-requests: write # and on released pull requests
+      id-token: write # npm trusted publishing, no npm token needed
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # semantic-release reads the full history and tags to work out the next version
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
