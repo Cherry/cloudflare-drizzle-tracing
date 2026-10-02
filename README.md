@@ -1,5 +1,9 @@
 # cloudflare-drizzle-tracing
 
+[![npm version](https://img.shields.io/npm/v/cloudflare-drizzle-tracing)](https://www.npmjs.com/package/cloudflare-drizzle-tracing)
+[![CI](https://github.com/Cherry/cloudflare-drizzle-tracing/actions/workflows/workflow.yml/badge.svg?branch=main)](https://github.com/Cherry/cloudflare-drizzle-tracing/actions/workflows/workflow.yml)
+[![license](https://img.shields.io/npm/l/cloudflare-drizzle-tracing)](./LICENSE)
+
 Adds a [Cloudflare Workers tracing](https://developers.cloudflare.com/workers/observability/traces/) span to every query, transaction, and batch you run through [Drizzle ORM](https://orm.drizzle.team). It works with any Drizzle driver.
 
 > [!NOTE]
