@@ -54,7 +54,7 @@
 		"@cloudflare/vitest-plugin": "1.2.8",
 		"@cloudflare/workers-types": "5.20260925.2",
 		"@electric-sql/pglite": "0.5.8",
-		"@nodecraft/eslint-config": "49.4.0",
+		"@nodecraft/eslint-config": "51.0.0",
 		"@stylistic/eslint-plugin": "5.10.0",
 		"@types/sql.js": "1.4.11",
 		"@vitest/eslint-plugin": "1.6.27",
