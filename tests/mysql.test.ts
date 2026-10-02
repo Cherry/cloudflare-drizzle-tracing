@@ -20,7 +20,9 @@ describe.each(versions)('mysql (drizzle $version)', ({ core, connect }) => {
 
 	it('traces queries with the mysql system name', async () => {
 		const { tracer, spans } = createTracer();
-		const db = instrumentDrizzle(connect(async () => { return { rows: [[1, 'a@example.com']] }; }), { tracer });
+		const db = instrumentDrizzle(connect(async () => {
+			return { rows: [[1, 'a@example.com']] };
+		}), { tracer });
 		await db.select().from(users);
 
 		expect(spans).toHaveLength(1);
