@@ -68,7 +68,7 @@
 		"postgres": "3.4.9",
 		"semantic-release": "25.0.9",
 		"sql.js": "1.14.2",
-		"typescript": "6.0.3",
+		"typescript": "7.0.2",
 		"typescript-eslint": "8.70.1",
 		"vite": "8.3.1",
 		"vite-plugin-dts": "5.1.1",
