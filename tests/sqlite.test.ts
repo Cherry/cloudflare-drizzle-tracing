@@ -75,8 +75,12 @@ describe.each(versions)('sqlite (drizzle $version)', ({ orm, core, connect, conn
 	it('wraps batches in a single span', async () => {
 		const { tracer, spans } = createTracer();
 		const db = instrumentDrizzle(connectProxy(
-			async () => { return { rows: [] }; },
-			async queries => queries.map(() => { return { rows: [] }; }),
+			async () => {
+				return { rows: [] };
+			},
+			async queries => queries.map(() => {
+				return { rows: [] };
+			}),
 		), { tracer });
 		await db.batch([db.select().from(users), db.delete(users).where(orm.eq(users.id, 1))]);
 

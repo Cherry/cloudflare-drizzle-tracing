@@ -11,7 +11,7 @@ export function versionPlugin(): Plugin {
 		name: 'version',
 		transform(code, id) {
 			if (id.includes('/src/') && code.includes('__VERSION__')) {
-				return code.replaceAll('__VERSION__', JSON.stringify(version));
+				return code.replaceAll('__VERSION__', () => JSON.stringify(version));
 			}
 		},
 	};

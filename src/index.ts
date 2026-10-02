@@ -142,6 +142,8 @@ function runInSpan<T>(config: Config, name: string, attributes: () => Record<str
 			throw error;
 		}
 		if (result instanceof Promise) {
+			// A trailing .catch() would also record errors thrown by onResult, which the sync path doesn't do
+			// eslint-disable-next-line unicorn/prefer-then-catch
 			return result.then((value) => {
 				onResult?.(span, value);
 				return value;
@@ -234,7 +236,9 @@ function instrumentSession(config: Config, session: Session | undefined) {
 			return runInSpan(
 				config,
 				'drizzle.transaction',
-				() => { return { 'db.operation.name': operation }; },
+				() => {
+					return { 'db.operation.name': operation };
+				},
 				() => transaction.call(this, (tx: Session) => {
 					instrumentSession(config, tx.session as Session | undefined);
 					wrapTransaction(tx, 'SAVEPOINT');
@@ -264,7 +268,9 @@ function instrumentSession(config: Config, session: Session | undefined) {
 			return runInSpan(
 				config,
 				'drizzle.batch',
-				() => { return { 'db.operation.name': 'BATCH', 'db.operation.batch.size': Array.isArray(queries) ? queries.length : undefined }; },
+				() => {
+					return { 'db.operation.name': 'BATCH', 'db.operation.batch.size': Array.isArray(queries) ? queries.length : undefined };
+				},
 				() => batch.call(this, queries, ...rest),
 			);
 		};
