@@ -11,7 +11,8 @@
 		"moduleResolution": "bundler",
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"strictNullChecks": false
+		"strictNullChecks": false,
+		"skipLibCheck": true
 	},
 	"include": ["src"],
 	"exclude": ["node_modules"]

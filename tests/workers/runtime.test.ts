@@ -1,9 +1,13 @@
+import * as D1Client from '@effect/sql-d1/D1Client';
 import { env, tracing } from 'cloudflare:workers';
 import { eq } from 'drizzle-orm';
 import { drizzle as drizzleD1 } from 'drizzle-orm/d1';
 import { pgTable, text as pgText, serial } from 'drizzle-orm/pg-core';
 import { drizzle as drizzlePostgres } from 'drizzle-orm/postgres-js';
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import * as EffectD1Drizzle from 'drizzle-orm-v1/effect-d1';
+import { integer as integerV1, sqliteTable as sqliteTableV1, text as textV1 } from 'drizzle-orm-v1/sqlite-core';
+import * as Effect from 'effect/Effect';
 import postgres from 'postgres';
 import {
 	afterEach,
@@ -15,6 +19,7 @@ import {
 } from 'vitest';
 
 import { instrumentDrizzle } from '../../src';
+import { instrumentEffectDrizzle } from '../../src/effect';
 
 import type { AttributeValue } from '../../src';
 
@@ -112,6 +117,41 @@ describe('D1 in workerd', () => {
 		expect(spanNamed('d1_all').parent).toBe(spanNamed('SELECT users'));
 		expect(spanNamed('d1_batch').parent).toBe(spanNamed('BATCH'));
 		expect(spanNamed('BATCH').attributes['db.operation.batch.size']).toBe(2);
+	});
+});
+
+describe('Effect D1 in workerd', () => {
+	const users = sqliteTableV1('users', { id: integerV1().primaryKey(), email: textV1().notNull() });
+
+	beforeEach(async () => {
+		await testEnv.DB.exec('drop table if exists users; create table users (id integer primary key, email text not null)');
+		spans = [];
+	});
+
+	function run(program: (db: Effect.Success<ReturnType<typeof EffectD1Drizzle.makeWithDefaults>>) => Effect.Effect<unknown, unknown>) {
+		return Effect.runPromise(Effect.gen(function *() {
+			yield* program(instrumentEffectDrizzle(yield* EffectD1Drizzle.makeWithDefaults({})));
+		}).pipe(Effect.provide(D1Client.layer({ db: testEnv.DB }))));
+	}
+
+	// Effect schedules fibers itself, so this checks the runtime's async context still follows the spans
+	it('parents the runtime D1 spans to the Drizzle query spans', async () => {
+		await run(db => Effect.gen(function *() {
+			yield* db.insert(users).values({ email: 'a@example.com' });
+			yield* db.select().from(users);
+		}));
+
+		expect(spanNamed('INSERT users').parent).toBeUndefined();
+		expect(spanNamed('SELECT users')).toMatchObject({ parent: undefined, attributes: { 'db.system.name': 'sqlite', 'db.response.returned_rows': 1 } });
+		expect(spans.filter(span => span.name.startsWith('d1_')).map(span => span.parent && labelOf(span.parent))).toEqual(['INSERT users', 'SELECT users']);
+	});
+
+	it('keeps concurrent queries as siblings', async () => {
+		await run(db => Effect.all([db.select().from(users), db.select({ id: users.id }).from(users)], { concurrency: 'unbounded' }));
+
+		const queries = spans.filter(span => span.name === 'drizzle.execute');
+		expect(queries).toHaveLength(2);
+		expect(queries.every(span => span.parent === undefined)).toBe(true);
 	});
 });
 

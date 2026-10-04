@@ -58,6 +58,21 @@ instrumentDrizzle(db, {
 });
 ```
 
+### Effect drivers
+
+Drizzle 1.0's [Effect drivers](https://orm.drizzle.team/docs/connect-effect-postgres), such as `drizzle-orm/effect-postgres` and `drizzle-orm/effect-d1`, return lazy Effects instead of Promises. Import from the `/effect` entry point for these, so each span covers the query's execution rather than the moment its Effect was built:
+
+```ts
+import { instrumentEffectDrizzle } from 'cloudflare-drizzle-tracing/effect';
+import * as PgDrizzle from 'drizzle-orm/effect-postgres';
+
+const db = instrumentEffectDrizzle(yield* PgDrizzle.makeWithDefaults());
+```
+
+It takes the same options and produces the same spans. `instrumentDrizzle` throws if you pass it an Effect database, so you can't pick the wrong one by accident.
+
+The `/effect` entry point needs `effect` `4.0.0-beta.83` up to (not including) `4.0.0-beta.104`, the versions Drizzle `1.0.0-rc.4` works with. Later Effect versions rename APIs that Drizzle relies on ([drizzle-orm#6162](https://github.com/drizzle-team/drizzle-orm/issues/6162)). This package's range will widen once Drizzle supports them. `effect@4.0.0-beta.83` also ships a broken type declaration, so enable `skipLibCheck` in your `tsconfig.json`.
+
 ## What you get
 
 | Span | Attributes |
@@ -73,7 +88,7 @@ Outside workerd, for example in a Node test suite, the package does nothing and 
 ## Compatibility
 
 - Drizzle ORM 0.45+ and 1.0 prereleases.
-- Any driver. The tests cover postgres.js, PGlite, D1, sql.js, and the pg, MySQL, and SQLite proxy drivers.
+- Any driver. The tests cover postgres.js, PGlite, D1, sql.js, and the pg, MySQL, and SQLite proxy drivers, plus the Effect PGlite and D1 drivers through `cloudflare-drizzle-tracing/effect`.
 - Workers tracing features added on 2026-09-25 (`setAttributes`, `recordException`) are used when the runtime has them. Older runtimes still get spans.
 
 ## How it works
