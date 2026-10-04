@@ -29,6 +29,10 @@
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.js"
+		},
+		"./effect": {
+			"types": "./dist/effect.d.ts",
+			"import": "./dist/effect.js"
 		}
 	},
 	"main": "dist/index.js",
@@ -45,7 +49,13 @@
 		"test": "vitest run"
 	},
 	"peerDependencies": {
-		"drizzle-orm": ">=0.45.0 || ^1.0.0-0"
+		"drizzle-orm": ">=0.45.0 || ^1.0.0-0",
+		"effect": ">=4.0.0-beta.83 <4.0.0-beta.104"
+	},
+	"peerDependenciesMeta": {
+		"effect": {
+			"optional": true
+		}
 	},
 	"publishConfig": {
 		"access": "public"
@@ -53,6 +63,8 @@
 	"devDependencies": {
 		"@cloudflare/vitest-plugin": "1.2.8",
 		"@cloudflare/workers-types": "5.20260925.2",
+		"@effect/sql-d1": "4.0.0-beta.83",
+		"@effect/sql-pglite": "4.0.0-beta.83",
 		"@electric-sql/pglite": "0.5.8",
 		"@nodecraft/eslint-config": "51.0.0",
 		"@stylistic/eslint-plugin": "5.10.0",
@@ -60,6 +72,7 @@
 		"@vitest/eslint-plugin": "1.6.27",
 		"drizzle-orm": "0.45.3",
 		"drizzle-orm-v1": "npm:drizzle-orm@1.0.0-rc.4",
+		"effect": "4.0.0-beta.83",
 		"eslint": "10.11.0",
 		"eslint-plugin-import-newlines": "2.0.0",
 		"eslint-plugin-import-x": "4.17.1",

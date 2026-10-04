@@ -12,13 +12,15 @@ export default defineConfig({
 		emptyOutDir: true,
 		minify: false,
 		lib: {
-			entry: path.resolve(import.meta.dirname, 'src/index.ts'),
+			entry: {
+				index: path.resolve(import.meta.dirname, 'src/index.ts'),
+				effect: path.resolve(import.meta.dirname, 'src/effect.ts'),
+			},
 			formats: ['es'],
-			fileName: 'index',
 		},
 		rollupOptions: {
-			// drizzle-orm is a peer dependency, and workerd provides cloudflare:workers at runtime
-			external: id => id.startsWith('drizzle-orm') || id.startsWith('cloudflare:'),
+			// drizzle-orm and effect are peer dependencies, and workerd provides cloudflare:workers at runtime
+			external: id => id.startsWith('drizzle-orm') || id === 'effect' || id.startsWith('effect/') || id.startsWith('cloudflare:'),
 		},
 	},
 });
