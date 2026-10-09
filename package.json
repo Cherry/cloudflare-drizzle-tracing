@@ -77,7 +77,7 @@
 		"eslint-plugin-import-newlines": "2.0.0",
 		"eslint-plugin-import-x": "4.17.1",
 		"eslint-plugin-n": "18.3.0",
-		"eslint-plugin-unicorn": "73.0.0",
+		"eslint-plugin-unicorn": "76.0.0",
 		"postgres": "3.4.9",
 		"semantic-release": "25.0.9",
 		"sql.js": "1.14.2",
