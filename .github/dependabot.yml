@@ -7,7 +7,7 @@ updates:
     # Matches min-release-age in .npmrc
     cooldown:
       default-days: 7
-  # Keeps the SHA-pinned actions current
+  # Keeps actions current, regenerating actions.lock in the same PR
   - package-ecosystem: github-actions
     directory: /
     schedule:

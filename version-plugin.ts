@@ -1,8 +1,8 @@
-import { readFileSync } from 'node:fs';
+import packageJson from './package.json' with { type: 'json' };
 
 import type { Plugin } from 'vite';
 
-const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as { version: string; };
+const { version } = packageJson;
 
 // Bakes the package.json version into src, which semantic-release sets before publishing. A transform rather than
 // `define`, since Vitest's workerd pool doesn't apply define replacements.

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 
-import { versionPlugin } from './version-plugin';
+import { versionPlugin } from './version-plugin.ts';
 
 export default defineConfig({
 	plugins: [dts(), versionPlugin()],

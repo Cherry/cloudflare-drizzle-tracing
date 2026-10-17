@@ -1,7 +1,7 @@
 import { cloudflareTest } from '@cloudflare/vitest-plugin';
 import { defineConfig } from 'vitest/config';
 
-import { versionPlugin } from './version-plugin';
+import { versionPlugin } from './version-plugin.ts';
 
 export default defineConfig({
 	test: {
